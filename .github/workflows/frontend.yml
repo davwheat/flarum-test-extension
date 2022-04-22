@@ -5,7 +5,7 @@ on: [workflow_dispatch, push, pull_request]
 env:
   COMPOSER_ROOT_VERSION: dev-main
   ci_script: "yarn install --immutable"
-  cache_dependency_path: format('{0}/yarn.lock', 'js') }}
+  cache_dependency_path: '**/yarn.lock'
 
 jobs:
   # prettier:
