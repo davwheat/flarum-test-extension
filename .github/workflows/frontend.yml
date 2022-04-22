@@ -1,22 +1,119 @@
-name: Test Extension JS
+name: Flarum Frontend Jobs
 
 on: [workflow_dispatch, push, pull_request]
 
-# The reusable workflow definitions will be moved to the `flarum/framework` repo soon.
-# This will break your current script.
-# When this happens, run `flarum-cli audit infra --fix` to update your infrastructure.
+env:
+  COMPOSER_ROOT_VERSION: dev-main
+  ci_script: "yarn install --immutable"
+  cache_dependency_path: format('{0}/yarn.lock', 'js') }}
 
 jobs:
-  run:
-    uses: flarum/.github/.github/workflows/REUSABLE_frontend.yml@main
-    with:
-      enable_bundlewatch: false
-      enable_prettier: true
-      enable_typescript: true
+  # prettier:
+  #   name: Prettier
+  #   runs-on: ubuntu-latest
 
-      frontend_directory: ./js
-      backend_directory: .
-      js_package_manager: yarn
-      main_git_branch: main
-    secrets:
-      bundlewatch_github_token: ${{ secrets.BUNDLEWATCH_GITHUB_TOKEN }}
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v2
+
+  #     - name: Set up Node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: lts
+  #         cache: yarn
+  #         cache-dependency-path: ${{ env.cache_dependency_path }}
+
+  #     - name: Install JS dependencies
+  #       run: ${{ env.ci_script }}
+  #       working-directory: js
+
+  #     - name: Check JS formatting
+  #       run: yarn run format-check
+  #       working-directory: js
+
+  # typecheck:
+  #   name: Typecheck
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v2
+
+  #     - name: Set up Node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: lts
+  #         cache: yarn
+  #         cache-dependency-path: ${{ env.cache_dependency_path }}
+
+  #     - name: Setup PHP
+  #       uses: shivammathur/setup-php@v2
+  #       with:
+  #         php-version: "8.0"
+  #         extensions: curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip
+  #         tools: composer:v2
+
+  #     # Needed since tsconfig draws typings from vendor folder.
+  #     - name: Install Composer dependencies
+  #       run: composer install
+  #       working-directory: .
+
+  #     - name: Install JS dependencies
+  #       run: ${{ env.ci_script }}
+  #       working-directory: js
+
+  #     - name: Typecheck
+  #       run: yarn run check-typings
+  #       working-directory: js
+
+  # type-coverage:
+  #   name: Type Coverage
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v2
+
+  #     - name: Set up Node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: lts
+  #         cache: yarn
+  #         cache-dependency-path: ${{ env.cache_dependency_path }}
+
+  #     - name: Install JS dependencies
+  #       run: ${{ env.ci_script }}
+  #       working-directory: js
+
+  #     - name: Check type coverage
+  #       run: yarn run check-typings-coverage
+  #       working-directory: js
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    # if: "always() && !contains(needs.*.result, 'failed') && !contains(needs.*.result, 'cancelled')"
+    # needs: [bundlewatch, prettier, typecheck, type-coverage]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: lts
+          cache: yarn
+          cache-dependency-path: ${{ env.cache_dependency_path }}
+
+      # Our action will install npm/yarn, cd into `${{ inputs.frontend_directory }}`, build dist JS and typings,
+      # then commit and upload any changes iff we are on the main branch and have just pushed.
+      - name: Build production JS
+        uses: flarum/action-build@dw/node
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          build_script: build
+          package_manager: yarn
+          typings_script: build-typings
+          js_path: js
+          do_not_commit: ${{ github.ref != format('refs/heads/{0}', 'main') || github.event_name != 'push' }}
