@@ -1108,7 +1108,7 @@
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.11.tgz#d421b6c527a3037f7c84433fd2c4229e016863d3"
   integrity sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==
 
-"@types/mithril@^2.0.7":
+"@types/mithril@^2.0.10", "@types/mithril@^2.0.7":
   version "2.0.10"
   resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-2.0.10.tgz#27ed0cc7cab30daf722d0d7c48c826bea381c954"
   integrity sha512-ef44j85vtiFuwu4ADkHSDfYu1MbnSQSgOrTMRfQ5v4gvAnB4ms8KjelJzUIuSrL3lO7y8k2T0DiUAAEfisnsQw==
